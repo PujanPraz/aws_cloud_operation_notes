@@ -143,3 +143,60 @@ For Systems Manager to work, you typically need:
 - Appropriately configured VPC endpoints
 
 Also, Systems Manager is not completely independent of the network or IAM configuration. If the agent cannot communicate with the service, or its permissions are missing, the operation may fail.
+
+
+# IAM Role for EC2 and Systems Manager
+
+## 1. Why does an EC2 instance need an IAM role?
+
+Imagine you have an EC2 instance and want Systems Manager to execute a command on it.
+
+The SSM Agent needs permission to communicate with the Systems Manager service. But how does AWS know that the instance is authorized?
+
+Through an IAM role attached to the EC2 instance.
+
+Think of it like an employee ID card:
+
+- **EC2** is your employee.
+- **IAM role** is the employee's authorization.
+- **IAM policies** define what the employee is allowed to do.
+
+Without the appropriate permissions, the agent may be unable to register the instance or communicate with Systems Manager.
+
+---
+
+## 2. How does it work?
+
+```text
+EC2 instance
+(Runs the SSM Agent)
+          |
+          v
+IAM instance role
+(Provides temporary AWS credentials and permissions)
+          |
+          v
+AWS Systems Manager
+(Accepts authorized requests from the agent)
+```
+
+The instance role is not your personal IAM user. It is an identity assigned to the EC2 instance itself.
+
+---
+
+## 3. The important policy: `AmazonSSMManagedInstanceCore`
+
+AWS provides a managed IAM policy named `AmazonSSMManagedInstanceCore`.
+
+This policy grants the core permissions an EC2 instance typically needs for SSM Agent communication with Systems Manager.
+
+You generally attach this policy to an IAM role that EC2 can assume.
+
+There are two separate concepts:
+
+- **IAM role:** The identity assigned to the instance.
+- **IAM policy:** The permissions associated with that identity.
+
+For example, a role might be named `EC2-SSM-Role`, and the role might have the `AmazonSSMManagedInstanceCore` policy attached.
+
+> **Note:** The role name is your choice; the policy name is the AWS-provided policy.

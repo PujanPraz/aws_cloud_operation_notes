@@ -200,3 +200,63 @@ There are two separate concepts:
 For example, a role might be named `EC2-SSM-Role`, and the role might have the `AmazonSSMManagedInstanceCore` policy attached.
 
 > **Note:** The role name is your choice; the policy name is the AWS-provided policy.
+
+
+# Session Manager
+
+## 1. What is Session Manager?
+
+Session Manager lets you connect to an EC2 instance through your browser or AWS CLI and interact with its terminal without opening an SSH port or managing SSH keys.
+
+For example, suppose you have an EC2 instance running Ubuntu. You want to execute Linux commands on it, but you haven't configured SSH access.
+
+With Session Manager, you can open a terminal session and run commands such as:
+
+```bash
+ls
+pwd
+top
+```
+
+---
+
+## 2. How does it work?
+
+```text
+You
+(Open Session Manager in the AWS Console)
+          |
+          v
+AWS Systems Manager
+(Authenticates and authorizes the session)
+          |
+          v
+SSM Agent on your EC2 instance
+(Opens the shell session on the instance)
+```
+
+Here's the important part: the SSM Agent initiates outbound communication with Systems Manager. You generally don't need to open inbound port `22` for SSH or port `3389` for RDP to use Session Manager.
+
+---
+
+## 3. What must be configured?
+
+Your EC2 instance needs these prerequisites:
+
+- **SSM Agent:** installed and running.
+- **IAM permissions:** an attached instance role with appropriate Systems Manager permissions, commonly `AmazonSSMManagedInstanceCore`.
+- **Network access:** connectivity to the required Systems Manager endpoints, typically over HTTPS on port `443`.
+- **Session permissions:** your IAM user or role must be allowed to start a session.
+
+> **Note:** The instance's IAM role and your own IAM permissions are different: one lets the instance communicate with Systems Manager; the other lets you initiate a session.
+
+---
+
+## 4. Why is Session Manager useful?
+
+- Access instances without distributing SSH private keys.
+- Manage instances in private subnets when the required network connectivity is configured.
+- Control access using IAM permissions.
+- Optionally log session activity to CloudWatch Logs or Amazon S3, depending on configuration and logging limitations.
+
+> **Caveat:** Session Manager doesn't automatically make every EC2 instance accessible. The prerequisites must still be satisfied.

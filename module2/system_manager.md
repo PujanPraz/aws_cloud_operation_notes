@@ -98,6 +98,47 @@ Normally, SSH access to a Linux EC2 instance uses TCP port 22. With Session Mana
 However, Systems Manager still needs network connectivity. An instance may communicate with the service through:
 
 - Internet access
+
+
+# SSM Agent
+
+## 1. What is the SSM Agent?
+
+The SSM Agent is software installed on an EC2 instance that allows AWS Systems Manager to communicate with and manage that instance.
+
+Think of it this way:
+
+- **EC2** is your virtual server.
+- **Systems Manager** is the service that coordinates management tasks.
+- **SSM Agent** runs on the server and carries out supported tasks.
+
+```text
+AWS Systems Manager
+(Receives and coordinates your request)
+          |
+          v
+Your EC2 instance
+          |
+          v
+SSM Agent
+(Communicates with Systems Manager and performs tasks)
+```
+
+For example, when you request a remote command to check disk space, Systems Manager coordinates the request and the agent executes the command on your instance.
+
+---
+
+## 2. Why is the agent important?
+
+Without a functioning agent, Systems Manager generally cannot perform agent-based management tasks on that instance.
+
+For Systems Manager to work, you typically need:
+
+1. SSM Agent installed and running.
+2. IAM permissions that allow the instance to communicate with Systems Manager.
+3. Network connectivity to the required Systems Manager endpoints.
+
+> **Note:** All three matter. Having an IAM role alone does not guarantee that the instance is manageable.
 - A NAT gateway
 - Appropriately configured VPC endpoints
 

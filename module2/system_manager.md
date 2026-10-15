@@ -260,3 +260,81 @@ Your EC2 instance needs these prerequisites:
 - Optionally log session activity to CloudWatch Logs or Amazon S3, depending on configuration and logging limitations.
 
 > **Caveat:** Session Manager doesn't automatically make every EC2 instance accessible. The prerequisites must still be satisfied.
+
+# Run Command
+
+## 1. What is Run Command?
+
+Run Command is an AWS Systems Manager feature that lets you execute commands or scripts on one or multiple managed EC2 instances remotely, without logging into each instance manually.
+
+For example, suppose you manage 20 EC2 instances and need to check their disk usage. Instead of connecting to each instance through SSH, you can use Run Command to execute the same Linux command across all 20 instances.
+
+```bash
+df -h
+```
+
+This command displays disk space usage.
+
+---
+
+## 2. How does Run Command work?
+
+```text
+1. Administrator
+   Chooses a command and target instances
+          |
+          v
+2. Systems Manager
+   Sends the command using an SSM document
+          |
+          v
+3. SSM Agent
+   Executes the command on each target instance
+          |
+          v
+4. Results
+   View execution status and command output
+```
+
+The SSM Agent is essential because it receives and executes commands on the instance.
+
+---
+
+## 3. What is an SSM document?
+
+An SSM document defines the actions Systems Manager should perform. Think of it as a reusable instruction template.
+
+AWS provides predefined documents, and you can also create your own.
+
+Examples:
+
+| Document | Purpose |
+|----------|---------|
+| `AWS-RunShellScript` | Execute shell commands on Linux instances |
+| `AWS-RunPowerShellScript` | Execute PowerShell commands on Windows instances |
+| `AWS-ConfigureAWSPackage` | Install or manage supported packages |
+
+For example, using `AWS-RunShellScript`, you could run:
+
+```bash
+uptime
+free -h
+df -h
+```
+
+This checks system uptime, memory usage, and disk usage.
+
+---
+
+## 4. Run Command vs. Session Manager
+
+Both let you manage instances remotely, but they serve different purposes.
+
+| Feature | Run Command | Session Manager |
+|---------|-------------|-----------------|
+| Main purpose | Execute commands or scripts | Interactive terminal access |
+| Typical use | Automate a task across many instances | Troubleshoot one instance interactively |
+| Requires SSH port 22? | No | No |
+| Output | Execution status and command output | Live interactive terminal |
+
+> **Practical example:** If you want to restart a service on 50 EC2 instances, Run Command is a good choice. If you want to investigate why one instance is behaving strangely, Session Manager is often more convenient.

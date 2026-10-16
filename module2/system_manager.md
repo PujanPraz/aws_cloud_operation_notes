@@ -440,3 +440,122 @@ An instance may be reported as noncompliant if it has required patches missing, 
 | Compliance reporting | Patch compliance | Command execution status and output |
 
 Patch Manager uses Systems Manager capabilities behind the scenes, including SSM Agent and command execution mechanisms, to carry out patching operations.
+
+# Parameter Store
+
+## 1. What is Parameter Store?
+
+AWS Systems Manager Parameter Store is a service for securely storing and retrieving configuration values and secrets used by applications.
+
+Imagine you're building a FastAPI application and need to configure database settings, API keys, and environment-specific values. Instead of hardcoding these values into your Python code, you can store them in Parameter Store and retrieve them when needed.
+
+For example, you might store:
+
+| Parameter name | Example value | Type |
+|----------------|---------------|------|
+| `/myapp/dev/DB_HOST` | `dev-db.example.com` | String |
+| `/myapp/prod/DB_HOST` | `prod-db.example.com` | String |
+| `/myapp/prod/API_KEY` | A sensitive API key | SecureString |
+
+> These are illustrative values, not real credentials.
+
+---
+
+## 2. Why do we need Parameter Store?
+
+Consider this Python code:
+
+```python
+DATABASE_URL = "postgresql://user:password@host:5432/app"
+```
+
+Hardcoding credentials creates risks. Secrets can accidentally end up in source control, logs, or shared files.
+
+With Parameter Store, your application retrieves configuration at runtime using the AWS SDK, such as `boto3`.
+
+Benefits include:
+
+- Centralized configuration management.
+- Separation of development and production settings.
+- Encryption for sensitive parameters.
+- IAM-based access control.
+- Parameter version history.
+- Integration with other AWS services.
+
+> **Important:** Parameter Store does not automatically make an application secure. You must configure permissions carefully and avoid exposing retrieved secrets in logs or responses.
+
+---
+
+## 3. The three parameter types
+
+### String
+
+Stores a single text value, such as a database hostname or application name.
+
+Example: `/myapp/DB_HOST`
+
+### StringList
+
+Stores a comma-separated list of strings.
+
+Example: `server1,server2,server3`
+
+It isn't a general-purpose JSON or nested data format.
+
+### SecureString
+
+Stores sensitive text encrypted using AWS KMS.
+
+Example: `/myapp/prod/DB_PASSWORD`
+
+For SecureString, access permissions and KMS key permissions matter. Encryption does not mean every authorized reader is prevented from retrieving the plaintext value.
+
+---
+
+## 4. Parameter hierarchy
+
+Parameter Store supports hierarchical names, which help organize configuration values by application and environment.
+
+For example:
+
+```text
+/myapp/dev/DB_HOST
+/myapp/dev/DB_PASSWORD
+/myapp/prod/DB_HOST
+/myapp/prod/DB_PASSWORD
+```
+
+An application can retrieve parameters by name or retrieve multiple parameters using a shared path.
+
+This structure is useful when the same application runs in development, testing, and production environments.
+
+---
+
+## 5. Parameter Store vs. Secrets Manager
+
+This is a common AWS interview question.
+
+| Feature | Parameter Store | Secrets Manager |
+|---------|-----------------|-----------------|
+| Configuration values | Yes | Possible, but not its main focus |
+| Encrypted secrets | Yes, using SecureString | Yes |
+| Automatic secret rotation | Not built in as a general native rotation feature | Built-in rotation workflows and integrations |
+| Typical use | Application settings and many simple secrets | Database credentials and secrets requiring rotation |
+| Pricing | Standard parameters have a free tier, subject to current AWS terms | Generally paid per secret and API usage |
+
+> **Rule of thumb:** Use Parameter Store for centralized configuration and many straightforward secrets. Consider Secrets Manager when automated secret rotation and dedicated secrets lifecycle management are important.
+
+---
+
+## 6. How would a FastAPI application use it?
+
+At a high level, the workflow is:
+
+1. Create a parameter in Parameter Store.
+2. Give the application's IAM role permission to read that parameter.
+3. Use `boto3` to retrieve it.
+4. Pass the value into the application's configuration.
+
+For example, the application might retrieve `/myapp/prod/DB_HOST` instead of hardcoding the production database hostname.
+
+For sensitive SecureString values, the application must request decryption and have the necessary KMS permissions where applicable.

@@ -559,3 +559,107 @@ At a high level, the workflow is:
 For example, the application might retrieve `/myapp/prod/DB_HOST` instead of hardcoding the production database hostname.
 
 For sensitive SecureString values, the application must request decryption and have the necessary KMS permissions where applicable.
+
+# Automation
+
+## 1. What is Automation?
+
+AWS Systems Manager Automation helps you automate common operational and administrative tasks across AWS resources.
+
+Think of it as creating a repeatable workflow that performs several steps for you, instead of manually executing each step in the AWS Console.
+
+For example, suppose an EC2 instance is experiencing an issue. You want to:
+
+1. Stop the instance.
+2. Create an EBS snapshot of its attached volume.
+3. Restart the instance.
+4. Verify its state.
+
+You can design an Automation workflow to perform supported steps in sequence, with appropriate permissions and error handling.
+
+---
+
+## 2. What is a runbook?
+
+A runbook is a document that defines the steps Automation should execute.
+
+AWS provides predefined runbooks, and you can create custom runbooks for your own operational workflows.
+
+A runbook is typically an SSM document written in YAML or JSON.
+
+For example, AWS provides a runbook named:
+
+```text
+AWS-RestartEC2Instance
+```
+
+This runbook can restart a specified EC2 instance.
+
+Other workflows can include steps to create snapshots, change resource configurations, or perform operational checks, depending on the runbook and its permissions.
+
+---
+
+## 3. How does Automation work?
+
+```text
+1. Trigger
+   An administrator or supported automation trigger starts the workflow
+          |
+          v
+2. Runbook
+   Defines the actions and their order
+          |
+          v
+3. Execute steps
+   Performs actions against supported AWS resources or managed nodes
+          |
+          v
+4. Review results
+   Inspect step status, outputs, and failures
+```
+
+Depending on the workflow, Automation can call AWS APIs directly, run commands on managed instances, or invoke other supported actions. Not every Automation step requires the SSM Agent.
+
+---
+
+## 4. Real-world use cases
+
+| Use case | Example |
+|----------|---------|
+| EC2 operations | Stop, start, or restart instances |
+| Backup preparation | Create EBS snapshots before maintenance |
+| Troubleshooting | Run diagnostic workflows |
+| Resource remediation | Correct supported configuration problems |
+| Multi-step operations | Execute several dependent actions in sequence |
+
+Automation is especially useful when the same operational procedure needs to be performed consistently and repeatedly.
+
+---
+
+## 5. Automation vs. Run Command
+
+This is an important interview distinction.
+
+| Feature | Automation | Run Command |
+|---------|------------|-------------|
+| Main purpose | Automate workflows and operational procedures | Execute commands or scripts on managed nodes |
+| Scope | Can coordinate multiple steps and AWS resource actions | Primarily runs commands on target managed nodes |
+| Uses runbooks/documents | Yes | Uses command documents |
+| Example | Snapshot a volume, then perform a maintenance workflow | Run `df -h` on 20 EC2 instances |
+
+> **Easy way to remember:** Run Command executes a command; Automation orchestrates a workflow.
+
+Automation can use Run Command as one step within a larger workflow.
+
+---
+
+## 6. Permissions and safety
+
+Automation workflows can make changes to infrastructure, so permissions matter.
+
+- The initiating user or role must be authorized to start the Automation execution.
+- AWS resources must be accessible through the permissions used by the workflow.
+- Some workflows use an IAM service role, also called an Automation assume role.
+- Destructive operations should include suitable validation and safeguards.
+
+> **Note:** Don't assume that every Automation runbook requires an EC2 instance role or that every runbook acts only on EC2 instances.

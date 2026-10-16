@@ -729,3 +729,91 @@ This is why we planned to check your EC2 instance's Ping status earlier.
 Suppose a company has 30 EC2 instances and 10 on-premises Linux servers. Its administrator wants a centralized console to inspect the managed servers' operating-system information.
 
 Fleet Manager is a suitable option, provided the on-premises servers have been registered and configured as Systems Manager managed nodes.
+
+# Inventory
+
+## 1. What is Inventory?
+
+AWS Systems Manager Inventory collects metadata about your managed nodes so you can understand what is installed and configured on your servers.
+
+For example, imagine you manage 100 EC2 instances and need to know:
+
+- Which operating systems are installed?
+- Which software packages are present?
+- Which applications and versions are running?
+- What hardware and network configuration information is available?
+
+Instead of manually connecting to each instance, you can use Inventory to collect and review this information centrally.
+
+---
+
+## 2. What information can Inventory collect?
+
+### A. Operating system information
+
+OS name, version, and other supported system details.
+
+### B. Installed applications and packages
+
+Software names, versions, and package details supported by the operating system.
+
+### C. Hardware and network details
+
+Supported metadata about processors, network configuration, and other system properties.
+
+### D. Custom inventory
+
+You can configure custom inventory collection to report additional information that matters to your organization.
+
+> **Note:** The exact inventory types available depend on the operating system and configuration.
+
+---
+
+## 3. How does Inventory work?
+
+```text
+1. Configure Inventory collection
+   Choose the managed nodes and inventory types
+          |
+          v
+2. SSM Agent collects metadata
+   Gathers supported information from each node
+          |
+          v
+3. Inventory data is reported
+   Systems Manager stores the collected metadata for review
+          |
+          v
+4. Analyze your fleet
+   Review software, OS versions, and configuration details
+```
+
+Inventory collection must be configured; don't assume that every managed node automatically reports every possible inventory type.
+
+---
+
+## 4. Real-world example
+
+Suppose your company has 60 EC2 instances. A security team wants to identify servers running an outdated version of a particular application.
+
+Using Inventory, the team can collect installed software and version information, then identify affected instances.
+
+The team can then use another appropriate tool or workflow to update those instances.
+
+> **Important:** Inventory primarily collects and reports metadata. It does not itself patch software or automatically remove outdated applications.
+
+---
+
+## 5. Inventory vs. Fleet Manager
+
+| Feature | Inventory | Fleet Manager |
+|---------|-----------|---------------|
+| Main purpose | Collect and query system metadata | Inspect and manage managed servers |
+| Installed software details | Core use case | Some system information is available |
+| OS and hardware metadata | Collects supported inventory data | Provides supported node details |
+| Remediate an outdated package | Requires another action or workflow | Not its primary purpose |
+
+An easy way to remember:
+
+- **Fleet Manager:** inspect and manage your servers.
+- **Inventory:** discover what's installed and configured on them.

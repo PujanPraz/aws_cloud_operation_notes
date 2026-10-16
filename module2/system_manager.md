@@ -817,3 +817,80 @@ An easy way to remember:
 
 - **Fleet Manager:** inspect and manage your servers.
 - **Inventory:** discover what's installed and configured on them.
+
+
+  # State Manager
+
+## 1. What is State Manager?
+
+AWS Systems Manager State Manager helps you define and maintain a desired configuration for your managed nodes.
+
+The key idea is configuration consistency. Instead of manually configuring every EC2 instance and hoping it stays that way, you define what the instance should have or how it should be configured, and State Manager can apply that configuration according to your association settings.
+
+For example, suppose your company has 50 EC2 instances. You want a monitoring agent installed on every instance. State Manager can help apply the configuration across those instances and periodically reapply it.
+
+---
+
+## 2. How does it work?
+
+``````text
+1. Define the desired configuration
+   Choose a document, targets, and schedule
+          |
+          v
+2. Create an association
+   Connect the document to your managed nodes
+          |
+          v
+3. Apply the configuration
+   SSM Agent executes the specified instructions
+          |
+          v
+4. Maintain consistency
+   Reapply instructions according to the configured schedule
+``````
+
+State Manager doesn't automatically detect and fix every configuration change. Its behavior depends on the document, association schedule, and instructions you configure.
+
+---
+
+## 3. What is an association?
+
+An association connects an SSM document with target managed nodes and specifies how or when that document should run.
+
+For example, you could create an association that:
+
+- Targets instances tagged `Environment=Production`.
+- Uses a document that checks or configures a required setting.
+- Runs on a defined schedule, such as every 30 minutes.
+
+If the document installs a required package, the package installation instructions must be designed appropriately. The association is what schedules and applies the document; it doesn't itself define the configuration logic.
+
+---
+
+## 4. Real-world use cases
+
+| Requirement | How State Manager helps |
+|-------------|-------------------------|
+| Install required software | Apply a document across selected instances |
+| Maintain a configuration | Reapply configuration instructions on a schedule |
+| Run routine checks | Schedule a document to inspect system settings |
+| Standardize a fleet | Apply the same configuration to many managed nodes |
+
+---
+
+## 5. State Manager vs. Run Command
+
+Both can execute commands on managed nodes, but their purposes differ.
+
+| Feature | State Manager | Run Command |
+|---------|---------------|-------------|
+| Primary purpose | Maintain a recurring configuration or operational state | Execute a command when requested |
+| Scheduling | Associations can run on a schedule | Commands can be launched on demand or through automation |
+| Repeated execution | Designed for ongoing associations | Not inherently a configuration-maintenance system |
+| Example | Ensure a required agent remains configured | Check disk usage once across 20 instances |
+
+> **Interview tip:** State Manager is useful when you want a configuration to be applied repeatedly, while Run Command is ideal for a specific command execution.
+``````
+
+The outer fence is six backticks since the document contains one nested code block.

@@ -663,3 +663,69 @@ Automation workflows can make changes to infrastructure, so permissions matter.
 - Destructive operations should include suitable validation and safeguards.
 
 > **Note:** Don't assume that every Automation runbook requires an EC2 instance role or that every runbook acts only on EC2 instances.
+
+# Fleet Manager
+
+## 1. What is Fleet Manager?
+
+Fleet Manager is an AWS Systems Manager feature that provides a centralized interface to view and manage your fleet of servers, including supported EC2 instances and hybrid servers registered with Systems Manager.
+
+Instead of navigating through multiple services and connecting to each instance individually, you can use Fleet Manager to inspect information about your managed nodes from one place.
+
+Imagine a company manages 50 EC2 instances running different operating systems. Fleet Manager helps administrators view and inspect those servers through the AWS Console.
+
+---
+
+## 2. What can Fleet Manager do?
+
+### A. View managed nodes
+
+See registered servers and inspect details such as their instance information and management status.
+
+### B. Inspect system information
+
+Depending on the operating system and available permissions, inspect information about processes, users, filesystems, and other system details.
+
+### C. Manage nodes remotely
+
+Access supported remote management capabilities through the console, including connections using Session Manager where configured.
+
+> **Note:** Fleet Manager's available capabilities depend on the node type, operating system, agent status, permissions, and configuration.
+
+---
+
+## 3. What is a managed node?
+
+A managed node is a server that AWS Systems Manager has registered and can manage.
+
+It may be:
+
+- An EC2 instance.
+- An on-premises server.
+- A virtual machine in another environment, when configured for hybrid activation.
+
+An EC2 instance existing in your AWS account does not automatically guarantee that it will appear as a managed node. It needs the appropriate Systems Manager setup, including agent and permissions, plus connectivity.
+
+This is why we planned to check your EC2 instance's Ping status earlier.
+
+---
+
+## 4. Fleet Manager vs. EC2 Dashboard
+
+| Feature | EC2 Dashboard | Fleet Manager |
+|---------|---------------|---------------|
+| Primary focus | AWS EC2 infrastructure | Systems Manager-managed nodes |
+| View instance state | Yes | Managed-node status and details |
+| Inspect operating-system details | Limited directly | Provides supported OS-level views |
+| Manage on-premises servers | Not as EC2 instances | Supports registered hybrid nodes |
+| Start a Session Manager session | Through supported integrations | Through supported integrations |
+
+> **Key distinction:** EC2 focuses on the cloud infrastructure; Fleet Manager focuses on inspecting and managing servers registered with Systems Manager.
+
+---
+
+## 5. Interview scenario
+
+Suppose a company has 30 EC2 instances and 10 on-premises Linux servers. Its administrator wants a centralized console to inspect the managed servers' operating-system information.
+
+Fleet Manager is a suitable option, provided the on-premises servers have been registered and configured as Systems Manager managed nodes.

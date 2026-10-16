@@ -338,3 +338,105 @@ Both let you manage instances remotely, but they serve different purposes.
 | Output | Execution status and command output | Live interactive terminal |
 
 > **Practical example:** If you want to restart a service on 50 EC2 instances, Run Command is a good choice. If you want to investigate why one instance is behaving strangely, Session Manager is often more convenient.
+
+# Patch Manager
+
+## 1. What is Patch Manager?
+
+AWS Systems Manager Patch Manager helps you automate the process of applying operating system updates and security patches to managed instances.
+
+Imagine a company has 100 EC2 instances running Ubuntu, Amazon Linux, and Windows Server. Manually checking and updating each instance would take a lot of time.
+
+Patch Manager helps administrators define patching rules, scan instances for missing patches, and install applicable updates at scale.
+
+---
+
+## 2. Why do we need patch management?
+
+Operating systems receive updates to fix vulnerabilities, bugs, and reliability issues.
+
+For example, suppose a security vulnerability is discovered in an installed Linux package. If the company doesn't update affected instances, attackers might exploit that vulnerability.
+
+Patch management helps organizations:
+
+- Apply security updates consistently.
+- Reduce exposure to known vulnerabilities.
+- Automate routine maintenance.
+- Track which instances are compliant with patching policies.
+- Manage updates across multiple instances.
+
+> **Important:** Installing patches is not a guarantee against every security vulnerability.
+
+---
+
+## 3. How does Patch Manager work?
+
+```text
+1. Define patch rules
+   Specify which patches are approved
+          |
+          v
+2. Scan instances
+   Identify missing or applicable patches
+          |
+          v
+3. Install patches
+   Apply approved updates when installation is requested or scheduled
+          |
+          v
+4. Check compliance
+   Review patch status and outstanding updates
+```
+
+Patch scanning and patch installation are different operations. A scan identifies patch status; it does not itself install missing updates.
+
+---
+
+## 4. Important Patch Manager concepts
+
+### A. Patch baseline
+
+A patch baseline defines which patches are approved for installation.
+
+For example, an administrator might approve security updates while excluding certain packages until they have been tested.
+
+Patch baselines can use operating-system-specific rules, classifications, severities, and explicit approvals or rejections, depending on the operating system.
+
+### B. Patch groups
+
+A patch group lets you organize managed nodes for patching purposes, often using tags.
+
+For example, a company could separate instances into:
+
+- Development
+- Testing
+- Production
+
+The team can test patches in development before applying them to production. A patch group can be associated with a patch baseline.
+
+### C. Maintenance windows
+
+Maintenance windows define when scheduled maintenance activities are allowed to run.
+
+For example, an organization may schedule patching every Sunday at 2 AM to minimize business disruption.
+
+A maintenance window is useful because patch installations can restart services or require an operating-system reboot.
+
+### D. Compliance reporting
+
+Patch compliance reporting helps you understand whether instances meet the organization's patching requirements.
+
+An instance may be reported as noncompliant if it has required patches missing, depending on the configured baseline and compliance rules.
+
+---
+
+## 5. Patch Manager vs. Run Command
+
+| Feature | Patch Manager | Run Command |
+|---------|---------------|-------------|
+| Main purpose | Manage operating-system patches | Execute commands or scripts |
+| Typical task | Install approved security updates | Restart Nginx or check disk usage |
+| Patch-specific baselines | Yes | No |
+| Compliance reporting | Patch compliance | Command execution status and output |
+
+Patch Manager uses Systems Manager capabilities behind the scenes, including SSM Agent and command execution mechanisms, to carry out patching operations.

@@ -893,4 +893,89 @@ Both can execute commands on managed nodes, but their purposes differ.
 > **Interview tip:** State Manager is useful when you want a configuration to be applied repeatedly, while Run Command is ideal for a specific command execution.
 ``````
 
-The outer fence is six backticks since the document contains one nested code block.
+# Maintenance Windows
+
+## 1. What are Maintenance Windows?
+
+AWS Systems Manager Maintenance Windows let you schedule when operational tasks should run on your managed nodes and other supported AWS resources.
+
+For example, suppose your company runs a production application 24/7. You need to install security patches, but you don't want maintenance to occur during peak business hours.
+
+You can schedule a maintenance window for Sunday at 2:00 AM and configure patching tasks to run during that period.
+
+---
+
+## 2. Why are Maintenance Windows useful?
+
+They help organizations:
+
+- Schedule maintenance during low-traffic periods.
+- Coordinate patching and other operational tasks.
+- Control which resources are targeted.
+- Limit the time available for scheduled tasks.
+- Reduce unexpected disruption to production workloads.
+
+A maintenance window provides a controlled time period; it does not guarantee that every task will finish successfully within that period.
+
+---
+
+## 3. How do Maintenance Windows work?
+
+``````text
+1. Define the schedule
+   For example, every Sunday at 2:00 AM
+          |
+          v
+2. Select targets
+   Choose managed nodes or other supported resources
+          |
+          v
+3. Register tasks
+   Specify the operations to run during the window
+          |
+          v
+4. Execute and review
+   Monitor task executions and their results
+``````
+
+---
+
+## 4. Important concepts
+
+- **Maintenance window schedule:** Defines when the window opens, using a supported scheduling expression and time zone configuration.
+- **Duration:** The number of hours the maintenance window remains open.
+- **Cutoff:** The point near the end of the window after which Systems Manager stops starting new tasks. Tasks already running may continue.
+- **Targets:** The resources on which the maintenance tasks should operate.
+- **Registered tasks:** The operations configured to run during the window.
+
+Tasks may include supported Run Command operations, Automation workflows, patching, and other Systems Manager task types.
+
+---
+
+## 5. Real-world example
+
+Imagine a company manages 80 EC2 instances and wants automatic patching every Sunday at 2:00 AM.
+
+A possible configuration would be:
+
+1. Create a maintenance window for Sunday at 2:00 AM.
+2. Set an appropriate duration and cutoff.
+3. Select the production instances using tags.
+4. Register a patching task with an appropriate patch baseline and reboot policy.
+5. Review execution results and patch compliance afterward.
+
+> **Important:** You must configure the patching task separately; creating the maintenance window alone does not install patches.
+
+---
+
+## 6. Maintenance Windows vs. State Manager
+
+| Feature | Maintenance Windows | State Manager |
+|---------|---------------------|---------------|
+| Primary purpose | Schedule maintenance tasks within defined windows | Apply and maintain configurations through associations |
+| Typical use | Patch production servers at 2 AM | Run configuration instructions every 30 minutes |
+| Scheduling focus | Controlled maintenance periods | Recurring configuration execution |
+| Can work together? | Yes | Yes |
+
+> **Interview tip:** If a question emphasizes a specific maintenance period, such as patching servers every Sunday at 2 AM, think of Maintenance Windows.
+``````

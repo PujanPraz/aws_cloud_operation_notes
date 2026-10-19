@@ -207,3 +207,92 @@ CLB is mainly relevant when maintaining or migrating legacy systems.
 | Static IP addresses for the load balancer | NLB |
 | Scale firewalls or traffic-inspection appliances | GWLB |
 | Maintain or migrate a legacy setup | CLB |
+
+# AWS ELB: Listener vs. Target Group
+
+In AWS Elastic Load Balancing, a **listener** receives incoming requests, and a **target group** identifies where those requests should go.
+
+---
+
+## 1. How they work together
+
+Imagine you have a FastAPI application running on two EC2 instances.
+
+```text
+User / Browser
+(Visits your website)
+          |
+          v
+Listener
+(HTTPS on port 443, receives the incoming request)
+          |
+          v
+Listener rule
+(Chooses the appropriate target group)
+          |
+          v
+Target group
+(FastAPI servers on port 8000)
+     |                |
+     v                v
+EC2 Instance A    EC2 Instance B
+   Port 8000         Port 8000
+```
+
+---
+
+## 2. What is a listener?
+
+A listener checks for connection requests on a configured protocol and port, then applies its configured rules to decide what action to take.
+
+For example:
+
+- Protocol: HTTP
+- Port: 80
+- Default action: Forward requests to a target group
+
+Or:
+
+- Protocol: HTTPS
+- Port: 443
+- Default action: Forward requests to a target group
+
+For HTTPS, you generally configure a TLS certificate on the listener so it can handle encrypted client connections.
+
+> **Analogy:** A listener is the reception desk that receives visitors and directs them to the correct department.
+
+---
+
+## 3. What is a target group?
+
+A target group is a collection of destinations that receive traffic from a load balancer.
+
+Targets can include:
+
+- EC2 instances
+- Private IP addresses
+- Lambda functions (supported with ALB)
+- Other supported target types, depending on the load balancer
+
+A target group also defines settings such as the target port and health checks.
+
+For example, your target group might contain:
+
+| Target | Application port | Health |
+|--------|------------------|--------|
+| EC2 Instance A | 8000 | Healthy |
+| EC2 Instance B | 8000 | Healthy |
+| EC2 Instance C | 8000 | Unhealthy |
+
+The load balancer generally sends new requests only to healthy, eligible targets. Instance C can receive traffic again when it passes its health checks.
+
+---
+
+## 4. Listener vs. target group
+
+| Feature | Listener | Target group |
+|---------|----------|--------------|
+| Main job | Receives incoming connections | Identifies traffic destinations |
+| Configured with | Protocol, port, rules | Targets, ports, health checks |
+| Example | HTTPS `:443` | Three EC2 instances on port 8000 |
+| Think of it as | Reception desk | Department receiving the visitor |
